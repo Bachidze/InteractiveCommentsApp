@@ -31,7 +31,6 @@ export default function Card() {
     cardData.reduce((acc: Votes, card: CardData) => ({ ...acc, [card.id]: card.IncreaseNumber }), {})
   );
 
-
   const [clickState, setClickState] = useState<ClickState>(
     cardData.reduce((acc: ClickState, card: CardData) => ({
       ...acc,
@@ -47,7 +46,10 @@ export default function Card() {
       }));
       setClickState((prev) => ({
         ...prev,
-        [id]: { ...prev[id], hasUpvoted: true },
+        [id]: { 
+          hasUpvoted: true, 
+          hasDownvoted: prev[id].hasDownvoted ? false : prev[id].hasDownvoted 
+        }, 
       }));
     }
   };
@@ -60,7 +62,10 @@ export default function Card() {
       }));
       setClickState((prev) => ({
         ...prev,
-        [id]: { ...prev[id], hasDownvoted: true },
+        [id]: { 
+          hasDownvoted: true, 
+          hasUpvoted: prev[id].hasUpvoted ? false : prev[id].hasUpvoted 
+        },
       }));
     }
   };
@@ -103,7 +108,7 @@ export default function Card() {
                 <button
                   onClick={() => handleDecrease(el.id)}
                   className={`text-[#C5C6EF] text-[16px] leading-5 cursor-pointer ${clickState[el.id].hasDownvoted ? 'cursor-not-allowed text-gray-400' : ''}`}
-                  disabled={clickState[el.id].hasDownvoted}
+                  disabled={clickState[el.id].hasDownvoted} 
                 >
                   -
                 </button>
