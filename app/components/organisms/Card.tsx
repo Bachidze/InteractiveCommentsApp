@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import Image from "next/image";
 import React, { useState } from "react";
 import CurlyGirl from "../../../public/assets/CurlyOval.svg";
@@ -16,7 +16,7 @@ interface CardData {
 }
 
 interface Votes {
-  [key: number]: number; 
+  [key: number]: number;
 }
 
 interface ClickState {
@@ -24,6 +24,14 @@ interface ClickState {
     hasUpvoted: boolean;
     hasDownvoted: boolean;
   };
+}
+
+interface ReplyState {
+    [key: number]: { visible: boolean; replyText: string };
+  }
+
+interface SubmittedReplies {
+  [key: number]: { id: number; text: string }[];
 }
 
 export default function Card() {
@@ -38,6 +46,21 @@ export default function Card() {
     }), {})
   );
 
+  const [replyState, setReplyState] = useState<ReplyState>(
+    cardData.reduce((acc: ReplyState, card: CardData) => ({
+      ...acc,
+      [card.id]: { visible: false, replyText: "" }
+    }), {})
+  );
+  const [submittedReplies, setSubmittedReplies] = useState<SubmittedReplies>(
+    cardData.reduce((acc: SubmittedReplies, card: CardData) => ({
+      ...acc,
+      [card.id]: []
+    }), {})
+  );
+
+  const [editingReply, setEditingReply] = useState<{ cardId: number; replyIndex: number } | null>(null);
+
   const handleIncrease = (id: number) => {
     if (!clickState[id].hasUpvoted) {
       setVotes((prev) => ({
@@ -46,10 +69,10 @@ export default function Card() {
       }));
       setClickState((prev) => ({
         ...prev,
-        [id]: { 
-          hasUpvoted: true, 
-          hasDownvoted: prev[id].hasDownvoted ? false : prev[id].hasDownvoted 
-        }, 
+        [id]: {
+          hasUpvoted: true,
+          hasDownvoted: prev[id].hasDownvoted ? false : prev[id].hasDownvoted
+        },
       }));
     }
   };
@@ -58,16 +81,120 @@ export default function Card() {
     if (!clickState[id].hasDownvoted) {
       setVotes((prev) => ({
         ...prev,
-        [id]: prev[id] > 0 ? prev[id] - 1 : 0, 
+        [id]: prev[id] > 0 ? prev[id] - 1 : 0,
       }));
       setClickState((prev) => ({
         ...prev,
-        [id]: { 
-          hasDownvoted: true, 
-          hasUpvoted: prev[id].hasUpvoted ? false : prev[id].hasUpvoted 
+        [id]: {
+          hasDownvoted: true,
+          hasUpvoted: prev[id].hasUpvoted ? false : prev[id].hasUpvoted
         },
       }));
     }
+  };
+
+  const toggleReplyInput = (id: number) => {
+    setReplyState((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        visible: !prev[id].visible,
+      },
+    }));
+  };
+
+  const handleReplyChange = (id: number, text: string) => {
+    setReplyState((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        replyText: text,
+      },
+    }));
+  };
+
+  const handleReplySubmit = (id: number) => {
+    const replyText = replyState[id].replyText.trim();
+    if (replyText !== "") {
+      setSubmittedReplies((prev) => {
+        const newReplies = [...prev[id], { id: Date.now(), text: replyText }];
+        return { ...prev, [id]: newReplies };
+      });
+
+      setReplyState((prev) => ({
+        ...prev,
+        [id]: {
+          ...prev[id],
+          replyText: "",
+        },
+      }));
+    }
+  };
+
+  const handleEditReply = (cardId: number, replyIndex: number) => {
+    const replyToEdit = submittedReplies[cardId][replyIndex];
+    setReplyState((prev) => ({
+      ...prev,
+      [cardId]: {
+        ...prev[cardId],
+        replyText: replyToEdit.text,
+      },
+    }));
+    setEditingReply({ cardId, replyIndex });
+  };
+
+  const handleUpdateReply = (cardId: number) => {
+    const replyText = replyState[cardId].replyText.trim();
+    if (replyText === "") {
+      // Remove the reply if it's an empty string
+      const updatedReplies = submittedReplies[cardId].filter((_, idx) => idx !== editingReply?.replyIndex);
+      setSubmittedReplies((prev) => ({
+        ...prev,
+        [cardId]: updatedReplies,
+      }));
+    } else {
+      // Ensure editingReply is not null before using it
+      if (editingReply) {
+        const updatedReplies = [...submittedReplies[cardId]];
+        updatedReplies[editingReply.replyIndex].text = replyText;
+        setSubmittedReplies((prev) => ({
+          ...prev,
+          [cardId]: updatedReplies,
+        }));
+      }
+    }
+  
+    // Clear editing state and reply text
+    setEditingReply(null);
+    setReplyState((prev) => ({
+      ...prev,
+      [cardId]: {
+        ...prev[cardId],
+        replyText: "",
+      },
+    }));
+  };
+
+  const handleKeyDown = (id: number, e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();  // Prevent default Enter behavior (e.g., form submission)
+      if (editingReply) {
+        handleUpdateReply(id);
+      } else {
+        handleReplySubmit(id);  // Call the reply submit function to log or process the reply
+      }
+    }
+  };
+
+  const handleCloseReplyInput = (id: number) => {
+    setReplyState((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        visible: false,
+        replyText: "",  // Clear text when closing
+      },
+    }));
   };
 
   return (
@@ -108,22 +235,67 @@ export default function Card() {
                 <button
                   onClick={() => handleDecrease(el.id)}
                   className={`text-[#C5C6EF] text-[16px] leading-5 cursor-pointer ${clickState[el.id].hasDownvoted ? 'cursor-not-allowed text-gray-400' : ''}`}
-                  disabled={clickState[el.id].hasDownvoted} 
+                  disabled={clickState[el.id].hasDownvoted}
                 >
                   -
                 </button>
               </div>
+
               <div className="flex items-center gap-2">
                 <Image
                   src={ReplyImg}
                   alt="ReplyImg"
                   className="w-[14px] h-[14px]"
                 />
-                <h4 className="text-[16px] text-[#5357B6] leading-6 font-medium">
-                  {el.replyText}
-                </h4>
+                <button
+                  onClick={() => toggleReplyInput(el.id)}
+                  className="text-[16px] text-[#5357B6] leading-6 font-medium"
+                >
+                  Reply
+                </button>
               </div>
             </div>
+
+            {replyState[el.id]?.visible && (
+              <div className="mt-4">
+                <textarea
+                  value={replyState[el.id]?.replyText}
+                  onChange={(e) => handleReplyChange(el.id, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(el.id, e)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  placeholder="Write your reply here..."
+                />
+              </div>
+            )}
+
+            {replyState[el.id]?.visible && (
+              <button
+                onClick={() => handleCloseReplyInput(el.id)}
+                className="mt-2 text-sm text-[#5357B6] underline"
+              >
+                Close
+              </button>
+            )}
+
+            {/* Render submitted replies */}
+            {submittedReplies[el.id]?.length > 0 && (
+              <div className="mt-4 text-gray-700">
+                <h4 className="font-medium">Replies:</h4>
+                <ul className="list-disc pl-4">
+                  {submittedReplies[el.id].map((reply, idx) => (
+                    <li key={reply.id} className="text-sm flex justify-between">
+                      <span>{reply.text}</span>
+                      <button
+                        onClick={() => handleEditReply(el.id, idx)}
+                        className="text-blue-500 text-xs ml-2"
+                      >
+                        Edit
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       ))}
