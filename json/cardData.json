@@ -1,0 +1,38 @@
+[
+    {
+        "id":1,
+        "image":"public/assets/CurlyOval.svg",
+        "name":"amyrobson",
+        "Date":"1 month ago",
+        "ParaGraph":"Impressive! Though it seems the drag feature could be improved.But overall it looks incredible. You would nailed the design and theresponsiveness at various breakpoints works really well.",
+        "IncreaseNumber":12,
+        "replyText":"Reply"
+    },
+    {
+        "id":2,
+        "image":"public/assets/CurlyOval.svg",
+        "name":"maxblagun",
+        "Date":"2 weeks ago",
+        "ParaGraph":"Woah, your project looks awesome! How long have you been coding for? Im still new, but think I want to dive into React as well soon. Perhaps you can give me an insight on where I can learn React? Thanks!",
+        "IncreaseNumber":5,
+        "replyText":"Reply"
+    },
+    {
+        "id":3,
+        "image":"public/assets/CurlyOval.svg",
+        "name":"ramsesmiron",
+        "Date":"1 week ago",
+        "ParaGraph":"@maxblagun If youre still new, Id recommend focusing on the fundamentals of HTML, CSS, and JS before considering React. Its very tempting to jump ahead but lay a solid foundation first.",
+        "IncreaseNumber":4,
+        "replyText":"Reply"
+    },
+    {
+        "id":4,
+        "image":"public/assets/CurlyOval.svg",
+        "name":"juliusomo",
+        "Date":"2 days ago",
+        "ParaGraph":"@ramsesmiron I couldnt agree more with this. Everything moves so fast and it always seems like everyone knows the newest library/framework. But the fundamentals are what stay constant.",
+        "IncreaseNumber":2,
+        "replyText":"Reply"
+    }
+]
