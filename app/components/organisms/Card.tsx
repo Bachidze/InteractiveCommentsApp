@@ -224,7 +224,8 @@ export default function Card() {
         }));
       }
     }
-
+  
+    
     setEditingReply(null);
     setReplyState((prev) => ({
       ...prev,
@@ -441,7 +442,6 @@ export default function Card() {
             >
               Send
             </button>
-            
           </div>
         </div>
       </div>
