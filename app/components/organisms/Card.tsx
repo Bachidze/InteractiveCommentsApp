@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import Image from "next/image";
 import React, { useState } from "react";
 import CurlyGirl from "../../../public/assets/CurlyOval.svg";
@@ -27,39 +27,62 @@ interface ClickState {
 }
 
 interface ReplyState {
-    [key: number]: { visible: boolean; replyText: string };
-  }
+  [key: number]: { visible: boolean; replyText: string };
+}
 
 interface SubmittedReplies {
   [key: number]: { id: number; text: string }[];
 }
 
 export default function Card() {
+  const [comment, setComment] = useState("");
   const [votes, setVotes] = useState<Votes>(
-    cardData.reduce((acc: Votes, card: CardData) => ({ ...acc, [card.id]: card.IncreaseNumber }), {})
+    cardData.reduce(
+      (acc: Votes, card: CardData) => ({
+        ...acc,
+        [card.id]: card.IncreaseNumber,
+      }),
+      {}
+    )
   );
 
   const [clickState, setClickState] = useState<ClickState>(
-    cardData.reduce((acc: ClickState, card: CardData) => ({
-      ...acc,
-      [card.id]: { hasUpvoted: false, hasDownvoted: false }
-    }), {})
+    cardData.reduce(
+      (acc: ClickState, card: CardData) => ({
+        ...acc,
+        [card.id]: { hasUpvoted: false, hasDownvoted: false },
+      }),
+      {}
+    )
   );
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setComment(e.target.value);
+  };
 
   const [replyState, setReplyState] = useState<ReplyState>(
-    cardData.reduce((acc: ReplyState, card: CardData) => ({
-      ...acc,
-      [card.id]: { visible: false, replyText: "" }
-    }), {})
+    cardData.reduce(
+      (acc: ReplyState, card: CardData) => ({
+        ...acc,
+        [card.id]: { visible: false, replyText: "" },
+      }),
+      {}
+    )
   );
   const [submittedReplies, setSubmittedReplies] = useState<SubmittedReplies>(
-    cardData.reduce((acc: SubmittedReplies, card: CardData) => ({
-      ...acc,
-      [card.id]: []
-    }), {})
+    cardData.reduce(
+      (acc: SubmittedReplies, card: CardData) => ({
+        ...acc,
+        [card.id]: [],
+      }),
+      {}
+    )
   );
 
-  const [editingReply, setEditingReply] = useState<{ cardId: number; replyIndex: number } | null>(null);
+  const [editingReply, setEditingReply] = useState<{
+    cardId: number;
+    replyIndex: number;
+  } | null>(null);
 
   const handleIncrease = (id: number) => {
     if (!clickState[id].hasUpvoted) {
@@ -71,7 +94,7 @@ export default function Card() {
         ...prev,
         [id]: {
           hasUpvoted: true,
-          hasDownvoted: prev[id].hasDownvoted ? false : prev[id].hasDownvoted
+          hasDownvoted: prev[id].hasDownvoted ? false : prev[id].hasDownvoted,
         },
       }));
     }
@@ -87,7 +110,7 @@ export default function Card() {
         ...prev,
         [id]: {
           hasDownvoted: true,
-          hasUpvoted: prev[id].hasUpvoted ? false : prev[id].hasUpvoted
+          hasUpvoted: prev[id].hasUpvoted ? false : prev[id].hasUpvoted,
         },
       }));
     }
@@ -146,14 +169,14 @@ export default function Card() {
   const handleUpdateReply = (cardId: number) => {
     const replyText = replyState[cardId].replyText.trim();
     if (replyText === "") {
-      // Remove the reply if it's an empty string
-      const updatedReplies = submittedReplies[cardId].filter((_, idx) => idx !== editingReply?.replyIndex);
+      const updatedReplies = submittedReplies[cardId].filter(
+        (_, idx) => idx !== editingReply?.replyIndex
+      );
       setSubmittedReplies((prev) => ({
         ...prev,
         [cardId]: updatedReplies,
       }));
     } else {
-      // Ensure editingReply is not null before using it
       if (editingReply) {
         const updatedReplies = [...submittedReplies[cardId]];
         updatedReplies[editingReply.replyIndex].text = replyText;
@@ -163,8 +186,7 @@ export default function Card() {
         }));
       }
     }
-  
-    // Clear editing state and reply text
+
     setEditingReply(null);
     setReplyState((prev) => ({
       ...prev,
@@ -177,11 +199,11 @@ export default function Card() {
 
   const handleKeyDown = (id: number, e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      e.preventDefault();  // Prevent default Enter behavior (e.g., form submission)
+      e.preventDefault();
       if (editingReply) {
         handleUpdateReply(id);
       } else {
-        handleReplySubmit(id);  // Call the reply submit function to log or process the reply
+        handleReplySubmit(id);
       }
     }
   };
@@ -192,7 +214,7 @@ export default function Card() {
       [id]: {
         ...prev[id],
         visible: false,
-        replyText: "",  // Clear text when closing
+        replyText: "",
       },
     }));
   };
@@ -224,7 +246,11 @@ export default function Card() {
               <div className="bg-[#ebedf5] flex gap-4 px-4 py-[10px] rounded-[10px]">
                 <button
                   onClick={() => handleIncrease(el.id)}
-                  className={`text-[#C5C6EF] text-[16px] leading-5 cursor-pointer ${clickState[el.id].hasUpvoted ? 'cursor-not-allowed text-gray-400' : ''}`}
+                  className={`text-[#C5C6EF] text-[16px] leading-5 cursor-pointer ${
+                    clickState[el.id].hasUpvoted
+                      ? "cursor-not-allowed text-gray-400"
+                      : ""
+                  }`}
                   disabled={clickState[el.id].hasUpvoted}
                 >
                   +
@@ -234,7 +260,11 @@ export default function Card() {
                 </h3>
                 <button
                   onClick={() => handleDecrease(el.id)}
-                  className={`text-[#C5C6EF] text-[16px] leading-5 cursor-pointer ${clickState[el.id].hasDownvoted ? 'cursor-not-allowed text-gray-400' : ''}`}
+                  className={`text-[#C5C6EF] text-[16px] leading-5 cursor-pointer ${
+                    clickState[el.id].hasDownvoted
+                      ? "cursor-not-allowed text-gray-400"
+                      : ""
+                  }`}
                   disabled={clickState[el.id].hasDownvoted}
                 >
                   -
@@ -277,7 +307,6 @@ export default function Card() {
               </button>
             )}
 
-            {/* Render submitted replies */}
             {submittedReplies[el.id]?.length > 0 && (
               <div className="mt-4 text-gray-700">
                 <h4 className="font-medium">Replies:</h4>
@@ -299,6 +328,30 @@ export default function Card() {
           </div>
         </div>
       ))}
+
+      <div className="bg-white rounded-lg pb-4">
+        <div className="flex justify-center">
+          <textarea
+            name="comment"
+            placeholder="Add Comment"
+            className="w-[90%] p-6 m-4 rounded-[10px] outline-none border"
+            value={comment}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="flex items-center justify-between w-[90%] m-auto">
+          <div>
+            <Image
+              className="w-[50px] h-[50px]"
+              alt="mainAvatar"
+              src={CurlyGirl}
+            />
+          </div>
+          <div>
+            <button className="bg-[#5357B6] py-4 px-6 rounded-[10px] text-white">Send</button>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
