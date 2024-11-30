@@ -15,6 +15,14 @@ interface CardData {
   replyText: string;
 }
 
+interface Comment {
+  id: number;
+  image: string;
+  name: string;
+  date: string;
+  text: string;
+}
+
 interface Votes {
   [key: number]: number;
 }
@@ -35,7 +43,8 @@ interface SubmittedReplies {
 }
 
 export default function Card() {
-  const [comment, setComment] = useState("");
+  const [commentText, setCommentText] = useState("");
+  const [comments, setComments] = useState<Comment[]>([]);
   const [votes, setVotes] = useState<Votes>(
     cardData.reduce(
       (acc: Votes, card: CardData) => ({
@@ -57,7 +66,36 @@ export default function Card() {
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setComment(e.target.value);
+    setCommentText(e.target.value);
+  };
+
+  const handleSendComment = () => {
+    if (commentText.trim() !== "") {
+      const newComment: Comment = {
+        id: Date.now(),
+        image: CurlyGirl,
+        name: "Your Name",
+        date: "Just now",
+        text: commentText,
+      };
+
+      setComments((prevComments) => [...prevComments, newComment]);
+      setCommentText("");
+    }
+  };
+
+  const handleDeleteComment = (id: number) => {
+    setComments((prevComments) =>
+      prevComments.filter((comment) => comment.id !== id)
+    );
+  };
+
+  const handleEditComment = (id: number, newText: string) => {
+    setComments((prevComments) =>
+      prevComments.map((comment) =>
+        comment.id === id ? { ...comment, text: newText } : comment
+      )
+    );
   };
 
   const [replyState, setReplyState] = useState<ReplyState>(
@@ -219,6 +257,13 @@ export default function Card() {
     }));
   };
 
+  const handleKeyDown2 = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendComment();
+    }
+  };
+
   return (
     <section className="flex flex-col gap-4">
       {cardData.map((el) => (
@@ -328,6 +373,47 @@ export default function Card() {
           </div>
         </div>
       ))}
+      <div>
+        {comments.map((comment) => (
+          <div key={comment.id} className="bg-white rounded-lg p-4 mb-4">
+            <div className="flex items-center gap-4">
+              <Image
+                src={comment.image}
+                alt={comment.name}
+                className="w-[32px] h-[32px]"
+              />
+              <div>
+                <h1 className="text-[#334253] text-[16px] font-bold">
+                  {comment.name}
+                </h1>
+                <h2 className="text-[#67727E] text-[14px]">{comment.date}</h2>
+              </div>
+            </div>
+            <p className="text-[#67727E] text-[16px] leading-6 py-4">
+              {comment.text}
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => handleDeleteComment(comment.id)}
+                className="text-[#E57373] text-sm font-medium"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => {
+                  const newText = prompt("Edit your comment", comment.text);
+                  if (newText !== null && newText.trim() !== "") {
+                    handleEditComment(comment.id, newText);
+                  }
+                }}
+                className="text-[#5357B6] text-sm font-medium"
+              >
+                Edit
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
 
       <div className="bg-white rounded-lg pb-4">
         <div className="flex justify-center">
@@ -335,8 +421,9 @@ export default function Card() {
             name="comment"
             placeholder="Add Comment"
             className="w-[90%] p-6 m-4 rounded-[10px] outline-none border"
-            value={comment}
+            value={commentText}
             onChange={handleChange}
+            onKeyDown={handleKeyDown2}
           />
         </div>
         <div className="flex items-center justify-between w-[90%] m-auto">
@@ -348,7 +435,12 @@ export default function Card() {
             />
           </div>
           <div>
-            <button className="bg-[#5357B6] py-4 px-6 rounded-[10px] text-white">Send</button>
+            <button
+              onClick={handleSendComment}
+              className="bg-[#5357B6] py-4 px-6 rounded-[10px] text-white"
+            >
+              Send
+            </button>
           </div>
         </div>
       </div>
