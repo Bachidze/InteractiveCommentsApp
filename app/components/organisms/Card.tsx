@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import React, { useState } from "react";
+import React from "react";
 import CurlyGirl from "../../../public/assets/CurlyOval.svg";
 import ReplyImg from "../../../public/assets/purpleReplyIcon.svg";
 import cardData from "../../../json/cardData.json";
