@@ -8,6 +8,7 @@ import cardData from "../../../json/cardData.json";
 export default function Card() {
   return (
     <section className="flex flex-col gap-4">
+      <h1>test Project</h1>
       {cardData.map((el) => (
         <div key={el.id} className="bg-white rounded-lg">
           <div className="flex py-4 mx-4 flex-col">
