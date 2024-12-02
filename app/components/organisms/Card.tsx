@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import Image from "next/image";
 import React, { FormEvent, useState } from "react";
 import CurlyGirl from "../../../public/assets/CurlyOval.svg";
@@ -9,32 +9,32 @@ interface cardInterFace {
   id: number;
   Date: string;
   ParaGraph: string;
+  name: string;
 }
 
 export default function Card() {
   const [textarea, setTextArea] = useState("");
   const [card, setCard] = useState<cardInterFace[]>([]);
 
-  const handleSubmit = (e:FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if(textarea.trim()){
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (textarea.trim()) {
       const newCardObj = {
-        id:card.length + 1,
-        Date:new Date().toISOString(),
-        ParaGraph:textarea
-      }
-      setCard(prev =>[...prev,newCardObj])
-    }
-
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault(); 
-      handleSubmit(e as any);
+        id: card.length + 1,
+        Date: new Date().toISOString(),
+        ParaGraph: textarea,
+        name: "New User"
+      };
+      setCard((prev) => [...prev, newCardObj]);
     }
   };
-  
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e as never);
+    }
+  };
 
   return (
     <section className="flex flex-col gap-4">
@@ -87,14 +87,11 @@ export default function Card() {
         </div>
       ))}
 
-
-          {card.map((el,index) => (
-            <div key={index}>
-              <h1>{el.ParaGraph}</h1>
-            </div>
-          ))}
-          
-
+      {card.map((el) => (
+        <div key={el.id}>
+          <h1>{el.ParaGraph}</h1>
+        </div>
+      ))}
 
       <form onSubmit={handleSubmit}>
         <div className="bg-white rounded-lg pb-4">
@@ -103,7 +100,6 @@ export default function Card() {
               name="comment"
               placeholder="Add Comment"
               value={textarea}
-              id="submitButton"
               onKeyDown={handleKeyDown}
               onChange={(e) => setTextArea(e.target.value)}
               className="w-[90%] p-6 m-4 rounded-[10px] outline-none border"
@@ -120,7 +116,6 @@ export default function Card() {
             <div>
               <button
                 type="submit"
-                id="submitButton"
                 className="bg-[#5357B6] py-4 px-6 rounded-[10px] text-white"
               >
                 Send
