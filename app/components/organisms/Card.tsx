@@ -1,11 +1,41 @@
-"use client";
+"use client"
 import Image from "next/image";
-import React from "react";
+import React, { FormEvent, useState } from "react";
 import CurlyGirl from "../../../public/assets/CurlyOval.svg";
 import ReplyImg from "../../../public/assets/purpleReplyIcon.svg";
 import cardData from "../../../json/cardData.json";
 
+interface cardInterFace {
+  id: number;
+  Date: string;
+  ParaGraph: string;
+  name: string;
+}
+
 export default function Card() {
+  const [textarea, setTextArea] = useState("");
+  const [card, setCard] = useState<cardInterFace[]>([]);
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (textarea.trim()) {
+      const newCardObj = {
+        id: card.length + 1,
+        Date: new Date().toISOString(),
+        ParaGraph: textarea,
+        name: "New User"
+      };
+      setCard((prev) => [...prev, newCardObj]);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e as never);
+    }
+  };
+
   return (
     <section className="flex flex-col gap-4">
       {cardData.map((el) => (
@@ -57,25 +87,43 @@ export default function Card() {
         </div>
       ))}
 
-      <div className="bg-white rounded-lg pb-4">
-        <div className="flex justify-center">
-          <textarea
-            name="comment"
-            placeholder="Add Comment"
-            className="w-[90%] p-6 m-4 rounded-[10px] outline-none border"
-          />
+      {card.map((el) => (
+        <div key={el.id}>
+          <h1>{el.ParaGraph}</h1>
         </div>
-        <div className="flex items-center justify-between w-[90%] m-auto">
-          <div>
-            <Image className="w-[50px] h-[50px]" alt="mainAvatar" src={CurlyGirl} />
+      ))}
+
+      <form onSubmit={handleSubmit}>
+        <div className="bg-white rounded-lg pb-4">
+          <div className="flex justify-center">
+            <textarea
+              name="comment"
+              placeholder="Add Comment"
+              value={textarea}
+              onKeyDown={handleKeyDown}
+              onChange={(e) => setTextArea(e.target.value)}
+              className="w-[90%] p-6 m-4 rounded-[10px] outline-none border"
+            />
           </div>
-          <div>
-            <button className="bg-[#5357B6] py-4 px-6 rounded-[10px] text-white">
-              Send
-            </button>
+          <div className="flex items-center justify-between w-[90%] m-auto">
+            <div>
+              <Image
+                className="w-[50px] h-[50px]"
+                alt="mainAvatar"
+                src={CurlyGirl}
+              />
+            </div>
+            <div>
+              <button
+                type="submit"
+                className="bg-[#5357B6] py-4 px-6 rounded-[10px] text-white"
+              >
+                Send
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </form>
     </section>
   );
 }
