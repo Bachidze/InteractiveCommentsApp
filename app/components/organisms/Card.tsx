@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import Image from "next/image";
 import React, { FormEvent, useState } from "react";
 import CurlyGirl from "../../../public/assets/CurlyOval.svg";
@@ -10,28 +10,47 @@ interface cardInterFace {
   Date: string;
   ParaGraph: string;
   name: string;
+  image: string;
 }
 
 export default function Card() {
   const [textarea, setTextArea] = useState("");
   const [card, setCard] = useState<cardInterFace[]>([]);
+  const [editCardId, setEditCardId] = useState<number | null>(null);
+  const GirlImage = "/assets/CurlyOval.svg";
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (textarea.trim()) {
       const newCardObj = {
         id: card.length + 1,
-        Date: new Date().toISOString(),
+        Date: new Date().toLocaleDateString(),
         ParaGraph: textarea,
-        name: "New User"
+        name: "New User",
+        image: GirlImage,
       };
       setCard((prev) => [...prev, newCardObj]);
     }
+    setTextArea("")
   };
 
-  const handleDelete = (id:number) => {
-    setCard(prev => prev.filter(el => el.id !== Number(id)))
-  }
+  const handleDelete = (id: number) => {
+    setCard((prev) => prev.filter((el) => el.id !== Number(id)));
+  };
+
+  const handleUpdate = (id: number) => {
+    setEditCardId(id);
+    const cardToEdit = card.find((el) => el.id === id);
+    if (cardToEdit) setTextArea(cardToEdit.ParaGraph);
+  };
+
+  const saveUpdate = (id: number) => {
+    setCard((prev) =>
+      prev.map((el) => (el.id === id ? { ...el, ParaGraph: textarea } : el))
+    );
+    setEditCardId(null);
+    setTextArea("");
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -91,14 +110,55 @@ export default function Card() {
         </div>
       ))}
 
+      {editCardId && (
+        <div className="bg-white p-4 rounded-lg">
+          <textarea
+            value={textarea}
+            onChange={(e) => setTextArea(e.target.value)}
+            className="w-[90%] p-6 m-4 rounded-[10px] outline-none border"
+          />
+         <div className="flex gap-3">
+         <button
+            onClick={() => saveUpdate(editCardId)}
+            className="bg-[#5357B6] py-2 px-4 rounded-[10px] text-white"
+          >
+            Save
+          </button>
+          <button
+            onClick={() => setEditCardId(null)}
+            className="bg-[#eb5f5f] py-2 px-4 rounded-[10px] text-white"
+          >
+            Cancel
+          </button>
+         </div>
+        </div>
+      )}
+
       {card.map((el) => (
-        <div key={el.id}>
-        <div>
-          <h1>{el.ParaGraph}</h1>
-        </div>
-        <div>
-          <button onClick={() => handleDelete(el.id)}>Delete</button>
-        </div>
+        <div
+          key={el.id}
+          className="bg-white flex justify-between py-4 rounded-lg"
+        >
+          <div className="w-[94%] m-auto flex flex-col">
+            <div className="flex items-center gap-3">
+              <Image src={el.image} alt="GirlImage" width={40} height={40} />
+              <h2>Giorgi Bachidze</h2>
+              <h3>{el.Date}</h3>
+            </div>
+            <div>
+              <div className="py-8">
+                <h1>{el.ParaGraph}</h1>
+              </div>
+              <div className="flex gap-3">
+                <div className="bg-[#eb5f5f] py-2 px-3 rounded-xl inline-block">
+                  <button onClick={() => handleDelete(el.id)}>Delete</button>
+                </div>
+                <div className="bg-[#8a82f2] py-2 px-3 rounded-xl inline-block">
+                  <button onClick={() => handleUpdate(el.id)}>Update</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       ))}
 
@@ -111,10 +171,10 @@ export default function Card() {
               value={textarea}
               onKeyDown={handleKeyDown}
               onChange={(e) => setTextArea(e.target.value)}
-              className="w-[90%] p-6 m-4 rounded-[10px] outline-none border"
+              className="w-[94%] p-6 m-4 rounded-[10px] outline-none border"
             />
           </div>
-          <div className="flex items-center justify-between w-[90%] m-auto">
+          <div className="flex items-center justify-between w-[95%] m-auto">
             <div>
               <Image
                 className="w-[50px] h-[50px]"
