@@ -29,6 +29,10 @@ export default function Card() {
     }
   };
 
+  const handleDelete = (id:number) => {
+    setCard(prev => prev.filter(el => el.id !== Number(id)))
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -89,7 +93,12 @@ export default function Card() {
 
       {card.map((el) => (
         <div key={el.id}>
+        <div>
           <h1>{el.ParaGraph}</h1>
+        </div>
+        <div>
+          <button onClick={() => handleDelete(el.id)}>Delete</button>
+        </div>
         </div>
       ))}
 
