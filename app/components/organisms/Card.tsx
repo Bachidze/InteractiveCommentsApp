@@ -50,6 +50,7 @@ export default function Card() {
     );
     setEditCardId(null);
     setTextArea("");
+    console.log("test")
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
