@@ -6,7 +6,9 @@
         "Date":"1 month ago",
         "ParaGraph":"Impressive! Though it seems the drag feature could be improved.But overall it looks incredible. You would nailed the design and theresponsiveness at various breakpoints works really well.",
         "IncreaseNumber":12,
-        "replyText":"Reply"
+        "replyText":"Reply",
+        "hasUpvoted":false,
+        "hasDownvoted":false
     },
     {
         "id":2,
@@ -15,7 +17,9 @@
         "Date":"2 weeks ago",
         "ParaGraph":"Woah, your project looks awesome! How long have you been coding for? Im still new, but think I want to dive into React as well soon. Perhaps you can give me an insight on where I can learn React? Thanks!",
         "IncreaseNumber":5,
-        "replyText":"Reply"
+        "replyText":"Reply",
+        "hasUpvoted":false,
+        "hasDownvoted":false
     },
     {
         "id":3,
@@ -24,6 +28,8 @@
         "Date":"1 week ago",
         "ParaGraph":"@maxblagun If youre still new, Id recommend focusing on the fundamentals of HTML, CSS, and JS before considering React. Its very tempting to jump ahead but lay a solid foundation first.",
         "IncreaseNumber":4,
-        "replyText":"Reply"
+        "replyText":"Reply",
+        "hasUpvoted":false,
+        "hasDownvoted":false
     }
 ]
