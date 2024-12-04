@@ -1,9 +1,16 @@
-"use client"
+"use client";
 import React, { FormEvent, useState } from "react";
 import Image from "next/image";
 import CurlyGirl from "../../../public/assets/CurlyOval.svg";
 import ReplyImg from "../../../public/assets/purpleReplyIcon.svg";
 import cardData from "../../../json/cardData.json";
+
+interface Reply {
+  id: number;
+  text: string;
+  name: string;
+  date: string;
+}
 
 interface cardInterFace {
   id: number;
@@ -14,20 +21,22 @@ interface cardInterFace {
   IncreaseNumber: number;
   hasUpvoted: boolean;
   hasDownvoted: boolean;
+  replies: Reply[];
 }
 
 export default function Card() {
   const [textarea, setTextArea] = useState("");
   const [card, setCard] = useState<cardInterFace[]>(cardData);
   const [editCardId, setEditCardId] = useState<number | null>(null);
+  const [replyText, setReplyText] = useState<string>("");
+  const [editingReplyId, setEditingReplyId] = useState<number | null>(null);
   const GirlImage = "/assets/CurlyOval.svg";
 
-  // Add new card
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (textarea.trim()) {
       const newCardObj = {
-        id: card.length + 1, // Or use a better unique ID generator
+        id: card.length + 1,
         Date: new Date().toLocaleDateString(),
         ParaGraph: textarea,
         name: "New User",
@@ -35,18 +44,17 @@ export default function Card() {
         IncreaseNumber: 0,
         hasUpvoted: false,
         hasDownvoted: false,
+        replies: [],
       };
       setCard((prev) => [...prev, newCardObj]);
-      setTextArea(""); // Clear the textarea after adding
+      setTextArea("");
     }
   };
 
-  // Delete card
   const handleDelete = (id: number) => {
     setCard((prev) => prev.filter((el) => el.id !== id));
   };
 
-  // Edit card
   const handleUpdate = (id: number) => {
     setEditCardId(id);
     const cardToEdit = card.find((el) => el.id === id);
@@ -59,11 +67,15 @@ export default function Card() {
         prev.map((el) => (el.id === id ? { ...el, ParaGraph: textarea } : el))
       );
     }
-    setEditCardId(null); // Exit edit mode
-    setTextArea(""); // Clear the textarea after saving
+
+    setEditCardId(null);
   };
 
-  // Handle upvote
+  const handleCancel = () => {
+    setEditCardId(null);
+    setTextArea("");
+  };
+
   const handleUpvote = (id: number) => {
     setCard((prev) =>
       prev.map((el) => {
@@ -89,7 +101,6 @@ export default function Card() {
     );
   };
 
-  // Handle downvote
   const handleDownvote = (id: number) => {
     setCard((prev) =>
       prev.map((el) => {
@@ -113,6 +124,59 @@ export default function Card() {
         return el;
       })
     );
+  };
+
+  const handleReplySubmit = (cardId: number, e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (replyText.trim()) {
+      const newReply: Reply = {
+        id: Date.now(),
+        text: replyText,
+        name: "New User",
+        date: new Date().toLocaleDateString(),
+      };
+
+      setCard((prev) =>
+        prev.map((el) =>
+          el.id === cardId ? { ...el, replies: [...el.replies, newReply] } : el
+        )
+      );
+      setReplyText(""); // Clear the reply input
+    }
+  };
+
+  const handleEditReply = (replyId: number, cardId: number) => {
+    const replyToEdit = card
+      .find((el) => el.id === cardId)
+      ?.replies.find((rep) => rep.id === replyId);
+    if (replyToEdit) {
+      setEditingReplyId(replyId);
+      setReplyText(replyToEdit.text);
+    }
+  };
+
+  const handleSaveReply = (replyId: number, cardId: number) => {
+    if (replyText.trim()) {
+      setCard((prev) =>
+        prev.map((el) =>
+          el.id === cardId
+            ? {
+                ...el,
+                replies: el.replies.map((rep) =>
+                  rep.id === replyId ? { ...rep, text: replyText } : rep
+                ),
+              }
+            : el
+        )
+      );
+      setReplyText("");
+      setEditingReplyId(null);
+    }
+  };
+
+  const handleCancelReplyEdit = () => {
+    setEditingReplyId(null);
+    setReplyText("");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -192,11 +256,87 @@ export default function Card() {
                 </button>
               </div>
             </div>
+
+            <div className="pl-6">
+              {el.replies.map((reply) => (
+                <div key={reply.id} className="bg-[#f1f3f8] p-4 my-2 rounded-md">
+                  <div className="flex gap-4 items-center">
+                    <Image
+                      src={CurlyGirl}
+                      alt="UserImg"
+                      className="w-[32px] h-[32px]"
+                    />
+                    <h1 className="text-[#334253] text-[16px] font-bold leading-5">
+                      {reply.name}
+                    </h1>
+                    <h2 className="text-[#67727E] text-[16px] leading-6">
+                      {reply.date}
+                    </h2>
+                  </div>
+                  <div className="text-[#67727E] text-[16px] leading-6 pt-2">
+                    {editingReplyId === reply.id ? (
+                      <div>
+                        <textarea
+                          value={replyText}
+                          onChange={(e) => setReplyText(e.target.value)}
+                          className="w-full p-2 text-[#67727E] text-[16px] leading-6"
+                          rows={3}
+                        />
+                        <div className="flex gap-4">
+                          <button
+                            onClick={() => handleSaveReply(reply.id, el.id)}
+                            className="text-[#5357B6]"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={handleCancelReplyEdit}
+                            className="text-[#eb5f5f]"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p>{reply.text}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => handleEditReply(reply.id, el.id)}
+                      className="text-[#5357B6] text-[16px] leading-6"
+                    >
+                      Edit Reply
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Reply form */}
+            <form onSubmit={(e) => handleReplySubmit(el.id, e)}>
+              <textarea
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                className="w-full p-2 text-[#67727E] text-[16px] leading-6"
+                rows={3}
+                placeholder="Write your reply..."
+              />
+              <button
+                type="submit"
+                className="text-[#5357B6] mt-2"
+                disabled={!replyText.trim()}
+              >
+                Submit Reply
+              </button>
+            </form>
           </div>
         </div>
       ))}
 
-      {/* Only show the Add Comment form when not editing */}
+      
+      
+
       {!editCardId && (
         <form onSubmit={handleSubmit}>
           <div className="bg-white rounded-lg pb-4">
@@ -222,8 +362,7 @@ export default function Card() {
         </form>
       )}
 
-      {/* Only show the Update form when in edit mode and textarea is not empty */}
-      {editCardId && textarea && (
+      {editCardId && (
         <div className="bg-white p-4 rounded-lg">
           <textarea
             value={textarea}
@@ -238,7 +377,7 @@ export default function Card() {
               Save
             </button>
             <button
-              onClick={() => setEditCardId(null)}
+              onClick={handleCancel}
               className="bg-[#eb5f5f] py-2 px-4 rounded-[10px] text-white"
             >
               Cancel
