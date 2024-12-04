@@ -8,7 +8,8 @@
         "IncreaseNumber":12,
         "replyText":"Reply",
         "hasUpvoted":false,
-        "hasDownvoted":false
+        "hasDownvoted":false,
+        "replies":[]
     },
     {
         "id":2,
@@ -19,7 +20,8 @@
         "IncreaseNumber":5,
         "replyText":"Reply",
         "hasUpvoted":false,
-        "hasDownvoted":false
+        "hasDownvoted":false,
+        "replies":[]
     },
     {
         "id":3,
@@ -30,6 +32,7 @@
         "IncreaseNumber":4,
         "replyText":"Reply",
         "hasUpvoted":false,
-        "hasDownvoted":false
+        "hasDownvoted":false,
+        "replies":[]
     }
 ]
